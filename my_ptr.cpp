@@ -48,6 +48,20 @@ my_ptr::my_ptr(int* p, const int x) : std::unique_ptr<int, my_ptr_deleter>(p, my
 {
 }
 #elif MY_PTR_BASED_CODE == LAMBDA_BASED_CODE
+    auto lambda_deleter = [&] (auto* p) -> void{ 
+        std::cout << "lambda deleter with value"; // << _x << "\n";
+        delete p;
+    };
+
+class my_ptr : public std::unique_ptr<int, decltype(lambda_deleter)> {
+    public:
+        my_ptr(int* p, const int x) : std::unique_ptr<int, decltype(lambda_deleter)> (p, lambda_deleter), _x(x) { }
+        my_ptr(my_ptr&& other) = default;
+        my_ptr& operator=(my_ptr&& other) = default;
+
+    private:
+        int _x;
+};
 #endif
 
 my_ptr create_my_ptr(int initVal, int x)
