@@ -67,21 +67,6 @@ my_ptr create_my_ptr(int initVal, int x)
 	return ptr;
 }
 
-class my_trivial_ptr : public std::unique_ptr<int>
-{
-public:
-	my_trivial_ptr(int initVal) : std::unique_ptr<int>(new int(initVal)) {}
-
-	my_trivial_ptr(my_trivial_ptr&& other) : std::unique_ptr<int>(std::move(other)) {}
-};
-
-my_trivial_ptr create_trivial_ptr(int initVal)
-{
-	my_trivial_ptr ptr(initVal);
-
-	return ptr;
-}
-
 int main(int argc, char * argv[])
 {
 	//int * raw_ptr = new int(10);
@@ -92,8 +77,6 @@ int main(int argc, char * argv[])
 	//std::unique_ptr<int, void(*)(int *)> ptr2(new int(10), [](int* t) { my_free(3, t); });
 	my_ptr ptr1(create_my_ptr(10, 20));
 	my_ptr ptr2(new int(30), 60);
-
-	//my_trivial_ptr ptr(create_trivial_ptr(5));
 
 	return 0;
 }
