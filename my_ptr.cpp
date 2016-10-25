@@ -39,15 +39,25 @@ public:
 class my_ptr : public std::unique_ptr<int, my_ptr_deleter>
 {
 public:
-	my_ptr(int* p, const int x);
+	my_ptr(int* p, const int x) : std::unique_ptr<int, my_ptr_deleter>(p, my_ptr_deleter(x)) {}
 
 	my_ptr(my_ptr&& other) : std::unique_ptr<int, my_ptr_deleter>(std::move(other)) {}
 };
-
-my_ptr::my_ptr(int* p, const int x) : std::unique_ptr<int, my_ptr_deleter>(p, my_ptr_deleter(x))
-{
-}
 #elif MY_PTR_BASED_CODE == LAMBDA_BASED_CODE
+void my_free(int x, int* p)
+{
+	std::cout << "my_free - *p: " << *p << "\nx: " << x << "\n";
+
+	delete p;
+}
+
+class my_ptr : public std::unique_ptr<int, void(*)(int*)>
+{
+public:
+	my_ptr(int* p, const int x) : std::unique_ptr<int, void(*)(int*)>(p, [x](int* p) { my_free(x, p); }) {}
+
+	my_ptr(my_ptr&& other) : std::unique_ptr<int, void(*)(int*)>(std::move(other)) {}
+};
 #endif
 
 my_ptr create_my_ptr(int initVal, int x)
