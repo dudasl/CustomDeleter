@@ -50,13 +50,14 @@ void my_free(int x, int* p)
 
 	delete p;
 }
+std::function<void(int*)> deleterType;
 
-class my_ptr : public std::unique_ptr<int, void(*)(int*)>
+class my_ptr : public std::unique_ptr<int, decltype(deleterType)>
 {
 public:
-	my_ptr(int* p, const int x) : std::unique_ptr<int, void(*)(int*)>(p, [x](int* p) { my_free(x, p); }) {}
+	my_ptr(int* p, const int x) : std::unique_ptr<int, decltype(deleterType)>(p, [x](int* p) { my_free(x, p); }) {}
 
-	my_ptr(my_ptr&& other) : std::unique_ptr<int, void(*)(int*)>(std::move(other)) {}
+	my_ptr(my_ptr&& other) = default; //: std::unique_ptr<int, void(*)(int*)>(std::move(other)) {}
 };
 #endif
 
