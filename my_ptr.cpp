@@ -26,7 +26,8 @@ public:
 	my_ptr(my_ptr&& other) : std::unique_ptr<int, std::_Bind<true, void, void(*const)(int, int *), const int&, std::_Ph<1> &>>(std::move(other)) {}
 };
 #elif MY_PTR_BASED_CODE == DELETER_BASED_CODE
-class my_ptr_deleter {
+class my_ptr_deleter
+{
 private:
 	int _x;
 
@@ -51,20 +52,18 @@ void my_free(int x, int* p)
 	delete p;
 }
 
-class my_ptr : public std::unique_ptr<int, void(*)(int*)>
+class my_ptr : public std::unique_ptr<int, std::function<void(int*)>>
 {
 public:
-	my_ptr(int* p, const int x) : std::unique_ptr<int, void(*)(int*)>(p, [x](int* p) { my_free(x, p); }) {}
+	my_ptr(int* p, const int x) : std::unique_ptr<int, std::function<void(int*)>>(p, [x](int* p) { my_free(x, p); }) {}
 
-	my_ptr(my_ptr&& other) : std::unique_ptr<int, void(*)(int*)>(std::move(other)) {}
+	my_ptr(my_ptr&& other) : std::unique_ptr<int, std::function<void(int*)>>(std::move(other)) {}
 };
 #endif
 
 my_ptr create_my_ptr(int initVal, int x)
 {
-	my_ptr ptr(new int(initVal), x);
-
-	return ptr;
+	return my_ptr(new int(initVal), x);
 }
 
 int main(int argc, char * argv[])
